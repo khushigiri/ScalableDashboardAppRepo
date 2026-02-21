@@ -13,4 +13,6 @@ app.use(express.json());
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/tasks", require("./routes/taskRoutes"));
 
-app.listen(5000, () => console.log("Server running"));
+app.listen(5000, () => {
+  console.log("Server running");
+});
