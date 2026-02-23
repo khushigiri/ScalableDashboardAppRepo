@@ -39,33 +39,6 @@ This project demonstrates:
 
 ---
 
-## Project Structure
-
-
-Scalable-Dashboard-App/
-│
-├── backend/
-│ ├── config/
-│ ├── controllers/
-│ ├── middleware/
-│ ├── models/
-│ ├── routes/
-│ ├── server.js
-│ └── .env
-│
-├── frontend/
-│ ├── src/
-│ │ ├── components/
-│ │ ├── context/
-│ │ ├── pages/
-│ │ ├── routes/
-│ │ └── App.js
-│
-└── README.md
-
-
----
-
 ## Authentication Flow
 
 1. User registers with name, email, and password.

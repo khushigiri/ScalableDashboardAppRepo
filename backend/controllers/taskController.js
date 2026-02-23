@@ -32,24 +32,28 @@ exports.getTasks = async (req, res) => {
 };
 
 // 🔹 Update Task
+// 🔹 Update Task
 exports.updateTask = async (req, res) => {
   try {
+    const { title, description, status } = req.body;
+
     const task = await Task.findById(req.params.id);
 
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // Make sure user owns the task
+    // Ensure user owns the task
     if (task.user.toString() !== req.user.id) {
       return res.status(401).json({ message: "Not authorized" });
     }
 
-    const updatedTask = await Task.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    // Update only allowed fields
+    task.title = title ?? task.title;
+    task.description = description ?? task.description;
+    task.status = status ?? task.status;
+
+    const updatedTask = await task.save();
 
     res.json(updatedTask);
   } catch (error) {
