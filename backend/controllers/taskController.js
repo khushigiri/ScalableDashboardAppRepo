@@ -1,18 +1,22 @@
+
+
 const Task = require("../models/Task");
 
 // 🔹 Create Task
 exports.createTask = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, priority, dueDate } = req.body;
 
-    if (!title) {
-      return res.status(400).json({ message: "Title is required" });
+    if (!title || !priority) {
+      return res.status(400).json({ message: "Title and priority required" });
     }
 
     const task = await Task.create({
       title,
       description,
-      user: req.user.id, // comes from authMiddleware
+      priority,
+      dueDate,
+      user: req.user.id,
     });
 
     res.status(201).json(task);
@@ -21,10 +25,12 @@ exports.createTask = async (req, res) => {
   }
 };
 
-// 🔹 Get All Tasks (only logged-in user's tasks)
+// 🔹 Get All Tasks
 exports.getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find({ user: req.user.id }).sort({ createdAt: -1 });
+    const tasks = await Task.find({ user: req.user.id })
+      .sort({ createdAt: -1 });
+
     res.json(tasks);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
@@ -32,10 +38,9 @@ exports.getTasks = async (req, res) => {
 };
 
 // 🔹 Update Task
-// 🔹 Update Task
 exports.updateTask = async (req, res) => {
   try {
-    const { title, description, status } = req.body;
+    const { title, description, status, priority, dueDate } = req.body;
 
     const task = await Task.findById(req.params.id);
 
@@ -43,15 +48,15 @@ exports.updateTask = async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // Ensure user owns the task
     if (task.user.toString() !== req.user.id) {
       return res.status(401).json({ message: "Not authorized" });
     }
 
-    // Update only allowed fields
     task.title = title ?? task.title;
     task.description = description ?? task.description;
     task.status = status ?? task.status;
+    task.priority = priority ?? task.priority;
+    task.dueDate = dueDate ?? task.dueDate;
 
     const updatedTask = await task.save();
 
@@ -70,7 +75,6 @@ exports.deleteTask = async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // Make sure user owns the task
     if (task.user.toString() !== req.user.id) {
       return res.status(401).json({ message: "Not authorized" });
     }
@@ -82,3 +86,6 @@ exports.deleteTask = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+
