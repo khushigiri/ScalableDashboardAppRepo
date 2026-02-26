@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { FaTasks, FaCheckCircle, FaClock, FaExclamationTriangle, FaEdit, FaTrash } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
 import api from "../services/api";
-// import Loader from "../components/Loader";
 import {
   getTasks,
   createTask,
@@ -12,7 +11,6 @@ import {
 } from "../services/taskService";
 import toast from "react-hot-toast";
 import TaskSkeleton from "../components/TaskSkeleton";
-
 
 const Dashboard = () => {
   const { logout } = useContext(AuthContext);
@@ -24,6 +22,7 @@ const Dashboard = () => {
   const [priority, setPriority] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [search, setSearch] = useState("");
+  const [prioritySort, setPrioritySort] = useState("none");
   const [statusFilter, setStatusFilter] = useState("all");
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
@@ -49,6 +48,60 @@ const Dashboard = () => {
     fetchProfile();
     fetchTasks();
   }, []);
+
+  useEffect(() => {
+    subscribeUser();
+  }, []);
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  //Push Notifications
+  const subscribeUser = async () => {
+    if ("serviceWorker" in navigator) {
+      const registration = await navigator.serviceWorker.register("/sw.js");
+
+      const permission = await Notification.requestPermission();
+
+      if (permission !== "granted") return;
+
+      // 🔥 Check if already subscribed
+      const existingSubscription =
+        await registration.pushManager.getSubscription();
+
+      if (existingSubscription) {
+        console.log("Already subscribed");
+        return;
+      }
+
+      const vapidPublicKey =
+        "BI9DOF7w0laIpRdbp5y7Ic1fvvV-LHagWUW_4T96fyAIouXvPnpCE-evFYv7MLTuZXCb-vk4TpYOadDVmxjl0K4";
+
+      const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
+
+      const newSubscription =
+        await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: convertedKey,
+        });
+
+      await api.post("/push/subscribe", newSubscription);
+
+      console.log("Push subscription successful");
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -138,17 +191,25 @@ const Dashboard = () => {
   };
 
   const handleToggleStatus = async (task) => {
+    const newStatus =
+      task.status === "completed" ? "pending" : "completed";
+
     try {
       setUpdatingId(task._id);
 
-      const newStatus =
-        task.status === "completed" ? "pending" : "completed";
-
       await updateTask(task._id, { status: newStatus });
 
+      setTasks(prev =>
+        prev.map(t =>
+          t._id === task._id
+            ? { ...t, status: newStatus }
+            : t
+        )
+      );
+
       toast.success("Status updated");
-      fetchTasks();
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Status update failed");
     } finally {
       setUpdatingId(null);
@@ -158,37 +219,54 @@ const Dashboard = () => {
   const getPriorityColor = (priority) => {
     switch (priority) {
       case "high":
-        return "bg-red-100 text-red-600";
+        return "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400";
       case "medium":
-        return "bg-yellow-100 text-yellow-600";
+        return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400";
       case "low":
-        return "bg-green-100 text-green-600";
+        return "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400";
       default:
-        return "bg-gray-100 text-gray-600";
+        return "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300";
     }
   };
 
   // 🔥 Advanced Filtering
-  const filteredTasks = tasks.filter((task) => {
-    const matchesSearch = task.title
-      .toLowerCase()
-      .includes(search.toLowerCase());
 
-    const isOverdue =
-      task.status === "pending" &&
-      task.dueDate &&
-      new Date(task.dueDate).getTime() < Date.now();
+  const priorityOrder = {
+    high: 3,
+    medium: 2,
+    low: 1,
+  };
 
-    if (statusFilter === "all") return matchesSearch;
-    if (statusFilter === "pending")
-      return matchesSearch && task.status === "pending";
-    if (statusFilter === "completed")
-      return matchesSearch && task.status === "completed";
-    if (statusFilter === "overdue")
-      return matchesSearch && isOverdue;
+  const filteredTasks = tasks
+    .filter((task) => {
+      const matchesSearch = task.title
+        .toLowerCase()
+        .includes(search.toLowerCase());
 
-    return matchesSearch;
-  });
+      const isOverdue =
+        task.status === "pending" &&
+        task.dueDate &&
+        new Date(task.dueDate).getTime() < Date.now();
+
+      if (statusFilter === "all") return matchesSearch;
+      if (statusFilter === "pending")
+        return matchesSearch && task.status === "pending";
+      if (statusFilter === "completed")
+        return matchesSearch && task.status === "completed";
+      if (statusFilter === "overdue")
+        return matchesSearch && isOverdue;
+
+      return matchesSearch;
+    })
+    .sort((a, b) => {
+      if (prioritySort === "highToLow") {
+        return priorityOrder[b.priority] - priorityOrder[a.priority];
+      }
+      if (prioritySort === "lowToHigh") {
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      }
+      return 0;
+    });
 
   const completedCount = tasks.filter(
     (task) => task.status === "completed"
@@ -208,9 +286,9 @@ const Dashboard = () => {
   ).length;
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8 transition-colors duration-300">
-      {/* Header */}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 transition-colors duration-300">
 
+      {/* Header */}
       <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 p-6 rounded-2xl shadow-lg flex justify-between items-center mb-6 transition-all duration-300">
 
         {/* Left Section */}
@@ -224,6 +302,7 @@ const Dashboard = () => {
         </div>
 
         {/* Right Section */}
+
         <div className="flex gap-3 items-center">
 
           {/* Dark Mode Toggle */}
@@ -236,7 +315,6 @@ const Dashboard = () => {
           >
             {darkMode ? "☀ Light" : "🌙 Dark"}
           </button>
-
           {/* Logout Button */}
           <button
             onClick={() => {
@@ -246,9 +324,13 @@ const Dashboard = () => {
             className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-all duration-200 shadow-md hover:shadow-lg"
           >
             Logout
+
           </button>
 
+
         </div>
+
+
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -353,7 +435,7 @@ const Dashboard = () => {
       </div>
 
       {/* Search + Status Filter */}
-      <div className="flex gap-4 mb-4">
+      {/* <div className="flex gap-4 mb-4">
         <input
           type="text"
           placeholder="Search tasks..."
@@ -371,6 +453,38 @@ const Dashboard = () => {
           <option value="pending">Pending</option>
           <option value="completed">Completed</option>
           <option value="overdue">Overdue</option>
+        </select>
+      </div> */}
+
+      <div className="flex gap-4 mb-4 flex-wrap">
+        <input
+          type="text"
+          placeholder="Search tasks..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="flex-1 px-4 py-2 border rounded-xl bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        />
+
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="px-4 py-2 border rounded-xl"
+        >
+          <option value="all">All</option>
+          <option value="pending">Pending</option>
+          <option value="completed">Completed</option>
+          <option value="overdue">Overdue</option>
+        </select>
+
+        {/* 🔥 Priority Sort */}
+        <select
+          value={prioritySort}
+          onChange={(e) => setPrioritySort(e.target.value)}
+          className="px-4 py-2 border rounded-xl"
+        >
+          <option value="none">Sort by Priority</option>
+          <option value="highToLow">High → Low</option>
+          <option value="lowToHigh">Low → High</option>
         </select>
       </div>
 
@@ -396,10 +510,15 @@ const Dashboard = () => {
             return (
               <div
                 key={task._id}
-                className={`p-4 rounded-xl shadow flex justify-between items-center ${isOverdue
-                  ? "bg-red-200 dark:bg-red-800"
-                  : "bg-white dark:bg-gray-800"
-                  }`}
+                className="
+  p-4 rounded-2xl
+  flex justify-between items-center
+  border border-gray-200
+  dark:bg-gray-800 dark:border-gray-700
+  bg-white
+  shadow-sm hover:shadow-md
+  transition-all duration-200
+"
               >
                 <div>
 
@@ -430,19 +549,73 @@ const Dashboard = () => {
 
                     {/* Task Info */}
                     <div>
-                      <span
-                        className={`text-lg font-semibold 
-        ${task.status === "completed"
-                            ? "line-through text-gray-400 dark:text-gray-500"
-                            : "text-gray-800 dark:text-gray-100"
-                          }`}
-                      >
-                        {task.title}
-                      </span>
+                      {/* <div className="flex items-center gap-2">
+                        <span
+                          className={`text-lg font-semibold 
+      ${task.status === "completed"
+                              ? "line-through text-gray-400 dark:text-gray-500"
+                              : "text-gray-800 dark:text-gray-100"
+                            }`}
+                        >
+                          {task.title}
+                        </span>
+
+                        {isOverdue && (
+                          <FaExclamationTriangle className="text-red-500 dark:text-red-400 text-sm" />
+
+                        )}
+                      </div> */}
+
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span
+                          className={`text-lg font-semibold 
+      ${task.status === "completed"
+                              ? "line-through text-gray-400 dark:text-gray-500"
+                              : "text-gray-800 dark:text-gray-100"
+                            }`}
+                        >
+                          {task.title}
+                        </span>
+
+                        {/* Priority Badge */}
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full font-medium ${getPriorityColor(
+                            task.priority
+                          )}`}
+                        >
+                          {task.priority}
+                        </span>
+
+
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Added: {new Date(task.createdAt).toLocaleString("en-IN", {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        })}
+
+                      </p>
+                      {/* {task.dueDate && (
+                        <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
+                          Due: {new Date(task.dueDate).toLocaleString("en-IN", {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          })}
+                        </p>
+                      )} */}
 
                       {task.dueDate && (
-                        <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
-                          Due: {new Date(task.dueDate).toLocaleString()}
+                        <p
+                          className={`text-xs mt-1 ${isOverdue
+                            ? "text-red-600 dark:text-red-400 font-medium"
+                            : "text-gray-500 dark:text-gray-400"
+                            }`}
+                        >
+                          Due:{" "}
+                          {new Date(task.dueDate).toLocaleString("en-IN", {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          })}
                         </p>
                       )}
                     </div>

@@ -2,7 +2,7 @@
 
 const Task = require("../models/Task");
 
-// 🔹 Create Task
+
 exports.createTask = async (req, res) => {
   try {
     const { title, description, priority, dueDate } = req.body;
@@ -18,6 +18,7 @@ exports.createTask = async (req, res) => {
       dueDate,
       user: req.user.id,
     });
+
 
     res.status(201).json(task);
   } catch (error) {
@@ -37,11 +38,9 @@ exports.getTasks = async (req, res) => {
   }
 };
 
-// 🔹 Update Task
+//Update Tasks
 exports.updateTask = async (req, res) => {
   try {
-    const { title, description, status, priority, dueDate } = req.body;
-
     const task = await Task.findById(req.params.id);
 
     if (!task) {
@@ -52,6 +51,9 @@ exports.updateTask = async (req, res) => {
       return res.status(401).json({ message: "Not authorized" });
     }
 
+    const { title, description, status, priority, dueDate } = req.body;
+
+    // 🔥 Do NOT validate title/priority here
     task.title = title ?? task.title;
     task.description = description ?? task.description;
     task.status = status ?? task.status;
@@ -86,6 +88,8 @@ exports.deleteTask = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 
 
