@@ -15,6 +15,11 @@ import DeleteModal from "../components/DeleteModal";
 
 
 const Dashboard = () => {
+  const setCurrentDateTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  };
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -22,7 +27,7 @@ const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
   const [priority, setPriority] = useState("");
-  const [dueDate, setDueDate] = useState("");
+  const [dueDate, setDueDate] = useState(() => setCurrentDateTime());
   const [search, setSearch] = useState("");
   const [prioritySort, setPrioritySort] = useState("none");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -36,6 +41,7 @@ const Dashboard = () => {
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("theme") === "dark"
   );
+
 
   useEffect(() => {
     if (darkMode) {
@@ -61,21 +67,33 @@ const Dashboard = () => {
     return outputArray;
   }
 
-  //Push Notifications
+
   const subscribeUser = useCallback(async () => {
+    console.log("SubscribeUser called");
+
     if ("serviceWorker" in navigator) {
       const registration = await navigator.serviceWorker.register("/sw.js");
+      console.log("Service worker registered");
 
       const permission = await Notification.requestPermission();
+      console.log("Permission:", permission);
+
       if (permission !== "granted") return;
 
       const existingSubscription =
         await registration.pushManager.getSubscription();
 
-      if (existingSubscription) return;
+      console.log("Existing subscription:", existingSubscription);
 
-      const vapidPublicKey =
-        "BI9DOF7w0laIpRdbp5y7Ic1fvvV-LHagWUW_4T96fyAIouXvPnpCE-evFYv7MLTuZXCb-vk4TpYOadDVmxjl0K4";
+      if (existingSubscription) {
+        console.log("Re-saving existing subscription to backend");
+
+        await api.post("/push/subscribe", existingSubscription);
+
+        return;
+      }
+
+      const vapidPublicKey = "YOUR_KEY";
 
       const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
 
@@ -85,7 +103,11 @@ const Dashboard = () => {
           applicationServerKey: convertedKey,
         });
 
+      console.log("New subscription created:", newSubscription);
+
       await api.post("/push/subscribe", newSubscription);
+
+      console.log("Subscription saved to backend");
     }
   }, []);
 
@@ -117,6 +139,7 @@ const Dashboard = () => {
     }
   };
 
+
   const handleSubmit = async () => {
     if (!newTask.trim() || !priority) {
       toast.error("Title and Priority required");
@@ -145,8 +168,9 @@ const Dashboard = () => {
 
       setNewTask("");
       setPriority("");
-      setDueDate("");
+      setDueDate(setCurrentDateTime());
       fetchTasks();
+
     } catch {
       toast.error("Something went wrong");
     } finally {
@@ -157,7 +181,17 @@ const Dashboard = () => {
   const handleEdit = (task) => {
     setNewTask(task.title);
     setPriority(task.priority);
-    setDueDate(task.dueDate ? task.dueDate.slice(0, 16) : "");
+
+    if (task.dueDate) {
+      const date = new Date(task.dueDate);
+
+      date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+
+      setDueDate(date.toISOString().slice(0, 16));
+    } else {
+      setDueDate(setCurrentDateTime());
+    }
+
     setEditingTaskId(task._id);
   };
 
@@ -165,7 +199,7 @@ const Dashboard = () => {
     setEditingTaskId(null);
     setNewTask("");
     setPriority("");
-    setDueDate("");
+    setDueDate(setCurrentDateTime());
   };
 
   const handleDelete = async (id) => {
@@ -419,6 +453,7 @@ flex items-center gap-4
             className="flex-1 px-4 py-2 border rounded-xl bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           />
 
+
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
@@ -433,6 +468,7 @@ flex items-center gap-4
           <input
             type="datetime-local"
             value={dueDate}
+            min={setCurrentDateTime()}
             onChange={(e) => setDueDate(e.target.value)}
             className="px-4 py-2 border rounded-xl"
           />

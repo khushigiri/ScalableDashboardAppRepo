@@ -24,10 +24,16 @@ const taskSchema = new mongoose.Schema(
     dueDate: {
       type: Date
     },
-reminderSent: {
-  type: Boolean,
-  default: false,
-},
+
+    reminderTime: {          
+      type: Date
+    },
+
+    reminderSent: {
+      type: Boolean,
+      default: false,
+    },
+
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -36,5 +42,4 @@ reminderSent: {
   },
   { timestamps: true }
 );
-
 module.exports = mongoose.model("Task", taskSchema);

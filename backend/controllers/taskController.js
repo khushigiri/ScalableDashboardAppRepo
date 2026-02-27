@@ -1,7 +1,4 @@
-
-
 const Task = require("../models/Task");
-
 
 exports.createTask = async (req, res) => {
   try {
@@ -11,14 +8,23 @@ exports.createTask = async (req, res) => {
       return res.status(400).json({ message: "Title and priority required" });
     }
 
+    let reminderTime = null;
+
+    if (dueDate) {
+      reminderTime = new Date(
+        new Date(dueDate).getTime() - 30 * 60000
+      );
+    }
+
     const task = await Task.create({
       title,
       description,
       priority,
       dueDate,
+      reminderTime,     
+      reminderSent: false,
       user: req.user.id,
     });
-
 
     res.status(201).json(task);
   } catch (error) {
@@ -53,20 +59,34 @@ exports.updateTask = async (req, res) => {
 
     const { title, description, status, priority, dueDate } = req.body;
 
-    task.title = title ?? task.title;
-    task.description = description ?? task.description;
-    task.status = status ?? task.status;
-    task.priority = priority ?? task.priority;
-    task.dueDate = dueDate ?? task.dueDate;
+    if (title !== undefined) task.title = title;
+    if (description !== undefined) task.description = description;
+    if (status !== undefined) task.status = status;
+    if (priority !== undefined) task.priority = priority;
+
+    if (dueDate !== undefined) {
+      task.dueDate = dueDate;
+
+      if (dueDate) {
+        task.reminderTime = new Date(
+          new Date(dueDate).getTime() - 30 * 60000
+        );
+
+        task.reminderSent = false;
+      } else {
+        task.reminderTime = null;
+        task.reminderSent = false;
+      }
+    }
 
     const updatedTask = await task.save();
 
     res.json(updatedTask);
   } catch (error) {
+    console.error("Update Task Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 // Delete Task
 exports.deleteTask = async (req, res) => {
   try {
