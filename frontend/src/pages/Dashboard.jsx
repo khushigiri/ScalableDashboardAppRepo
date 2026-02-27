@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaTasks, FaCheckCircle, FaClock, FaExclamationTriangle, FaEdit, FaTrash } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
@@ -11,6 +11,8 @@ import {
 } from "../services/taskService";
 import toast from "react-hot-toast";
 import TaskSkeleton from "../components/TaskSkeleton";
+import DeleteModal from "../components/DeleteModal";
+
 
 const Dashboard = () => {
   const { logout } = useContext(AuthContext);
@@ -44,15 +46,6 @@ const Dashboard = () => {
       localStorage.setItem("theme", "light");
     }
   }, [darkMode]);
-  useEffect(() => {
-    fetchProfile();
-    fetchTasks();
-  }, []);
-
-  useEffect(() => {
-    subscribeUser();
-  }, []);
-
   function urlBase64ToUint8Array(base64String) {
     const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
     const base64 = (base64String + padding)
@@ -69,22 +62,17 @@ const Dashboard = () => {
   }
 
   //Push Notifications
-  const subscribeUser = async () => {
+  const subscribeUser = useCallback(async () => {
     if ("serviceWorker" in navigator) {
       const registration = await navigator.serviceWorker.register("/sw.js");
 
       const permission = await Notification.requestPermission();
-
       if (permission !== "granted") return;
 
-      // 🔥 Check if already subscribed
       const existingSubscription =
         await registration.pushManager.getSubscription();
 
-      if (existingSubscription) {
-        console.log("Already subscribed");
-        return;
-      }
+      if (existingSubscription) return;
 
       const vapidPublicKey =
         "BI9DOF7w0laIpRdbp5y7Ic1fvvV-LHagWUW_4T96fyAIouXvPnpCE-evFYv7MLTuZXCb-vk4TpYOadDVmxjl0K4";
@@ -98,12 +86,10 @@ const Dashboard = () => {
         });
 
       await api.post("/push/subscribe", newSubscription);
-
-      console.log("Push subscription successful");
     }
-  };
+  }, []);
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const res = await api.get("/auth/profile");
       setUser(res.data);
@@ -111,8 +97,15 @@ const Dashboard = () => {
       logout();
       navigate("/login");
     }
-  };
+  }, [logout, navigate]);
+  useEffect(() => {
+    fetchProfile();
+    fetchTasks();
+  }, [fetchProfile]);
 
+  useEffect(() => {
+    subscribeUser();
+  }, [subscribeUser]);
   const fetchTasks = async () => {
     try {
       const res = await getTasks();
@@ -229,7 +222,7 @@ const Dashboard = () => {
     }
   };
 
-  // 🔥 Advanced Filtering
+  // Filtering
 
   const priorityOrder = {
     high: 3,
@@ -289,7 +282,15 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 transition-colors duration-300">
 
       {/* Header */}
-      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 p-6 rounded-2xl shadow-lg flex justify-between items-center mb-6 transition-all duration-300">
+      <div className="
+bg-white/70 dark:bg-gray-800/70
+backdrop-blur-xl
+border border-gray-200 dark:border-gray-700
+p-6 rounded-2xl
+shadow-lg hover:shadow-xl
+transition-all duration-300
+flex justify-between items-center mb-6
+">
 
         {/* Left Section */}
         <div>
@@ -321,7 +322,8 @@ const Dashboard = () => {
               logout();
               navigate("/login");
             }}
-            className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-all duration-200 shadow-md hover:shadow-lg"
+            className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-all duration-200 ease-in-out
+active:scale-95 shadow-md hover:shadow-lg"
           >
             Logout
 
@@ -336,9 +338,15 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
         {/* Total */}
-        <div className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-800 dark:hover:bg-blue-700 
-                  text-white p-5 rounded-2xl shadow-md hover:shadow-lg 
-                  transition-all duration-200 flex items-center gap-4">
+        <div className="
+bg-gradient-to-br from-blue-500 to-blue-600
+hover:from-blue-600 hover:to-blue-700
+text-white p-5 rounded-2xl
+shadow-md hover:shadow-2xl
+hover:-translate-y-1
+transition-all duration-300
+flex items-center gap-4
+">
           <FaTasks className="text-2xl opacity-90" />
           <div>
             <p className="text-sm opacity-80">Total Tasks</p>
@@ -347,9 +355,15 @@ const Dashboard = () => {
         </div>
 
         {/* Completed */}
-        <div className="bg-green-500 hover:bg-green-600 dark:bg-green-800 dark:hover:bg-green-700 
-                  text-white p-5 rounded-2xl shadow-md hover:shadow-lg 
-                  transition-all duration-200 flex items-center gap-4">
+        <div className="
+    bg-gradient-to-br from-green-500 to-green-600
+    hover:from-green-600 hover:to-green-700
+    text-white p-5 rounded-2xl
+    shadow-md hover:shadow-2xl
+    hover:-translate-y-1
+    transition-all duration-300 ease-out
+    flex items-center gap-4
+    ">
           <FaCheckCircle className="text-2xl opacity-90" />
           <div>
             <p className="text-sm opacity-80">Completed</p>
@@ -358,9 +372,15 @@ const Dashboard = () => {
         </div>
 
         {/* Pending */}
-        <div className="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-700 dark:hover:bg-yellow-600 
-                  text-white p-5 rounded-2xl shadow-md hover:shadow-lg 
-                  transition-all duration-200 flex items-center gap-4">
+        <div className="
+    bg-gradient-to-br from-yellow-500 to-yellow-600
+    hover:from-yellow-600 hover:to-yellow-700
+    text-white p-5 rounded-2xl
+    shadow-md hover:shadow-2xl
+    hover:-translate-y-1
+    transition-all duration-300 ease-out
+    flex items-center gap-4
+    ">
           <FaClock className="text-2xl opacity-90" />
           <div>
             <p className="text-sm opacity-80">Pending</p>
@@ -369,9 +389,15 @@ const Dashboard = () => {
         </div>
 
         {/* Overdue */}
-        <div className="bg-red-500 hover:bg-red-600 dark:bg-red-800 dark:hover:bg-red-700 
-                  text-white p-5 rounded-2xl shadow-md hover:shadow-lg 
-                  transition-all duration-200 flex items-center gap-4">
+        <div className="
+    bg-gradient-to-br from-red-500 to-red-600
+    hover:from-red-600 hover:to-red-700
+    text-white p-5 rounded-2xl
+    shadow-md hover:shadow-2xl
+    hover:-translate-y-1
+    transition-all duration-300 ease-out
+    flex items-center gap-4
+    ">
           <FaExclamationTriangle className="text-2xl opacity-90" />
           <div>
             <p className="text-sm opacity-80">Overdue</p>
@@ -435,26 +461,6 @@ const Dashboard = () => {
       </div>
 
       {/* Search + Status Filter */}
-      {/* <div className="flex gap-4 mb-4">
-        <input
-          type="text"
-          placeholder="Search tasks..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-4 py-2 border rounded-xl bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        />
-
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 border rounded-xl"
-        >
-          <option value="all">All</option>
-          <option value="pending">Pending</option>
-          <option value="completed">Completed</option>
-          <option value="overdue">Overdue</option>
-        </select>
-      </div> */}
 
       <div className="flex gap-4 mb-4 flex-wrap">
         <input
@@ -476,7 +482,7 @@ const Dashboard = () => {
           <option value="overdue">Overdue</option>
         </select>
 
-        {/* 🔥 Priority Sort */}
+        {/* Priority Sort */}
         <select
           value={prioritySort}
           onChange={(e) => setPrioritySort(e.target.value)}
@@ -511,13 +517,14 @@ const Dashboard = () => {
               <div
                 key={task._id}
                 className="
-  p-4 rounded-2xl
-  flex justify-between items-center
-  border border-gray-200
-  dark:bg-gray-800 dark:border-gray-700
-  bg-white
-  shadow-sm hover:shadow-md
-  transition-all duration-200
+p-4 rounded-2xl
+flex justify-between items-center
+border border-gray-200
+dark:bg-gray-800 dark:border-gray-700
+bg-white
+shadow-sm hover:shadow-xl
+hover:-translate-y-[2px]
+transition-all duration-300 ease-out
 "
               >
                 <div>
@@ -534,7 +541,8 @@ const Dashboard = () => {
                         <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
                       ) : (
                         <div
-                          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200
+                          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200 ease-in-out
+active:scale-95
           ${task.status === "completed"
                               ? "bg-green-500 border-green-500"
                               : "border-gray-400 dark:border-gray-500"
@@ -549,26 +557,11 @@ const Dashboard = () => {
 
                     {/* Task Info */}
                     <div>
-                      {/* <div className="flex items-center gap-2">
-                        <span
-                          className={`text-lg font-semibold 
-      ${task.status === "completed"
-                              ? "line-through text-gray-400 dark:text-gray-500"
-                              : "text-gray-800 dark:text-gray-100"
-                            }`}
-                        >
-                          {task.title}
-                        </span>
 
-                        {isOverdue && (
-                          <FaExclamationTriangle className="text-red-500 dark:text-red-400 text-sm" />
-
-                        )}
-                      </div> */}
 
                       <div className="flex items-center gap-2 flex-wrap">
                         <span
-                          className={`text-lg font-semibold 
+                          className={`text-[17px] font-semibold tracking-tight 
       ${task.status === "completed"
                               ? "line-through text-gray-400 dark:text-gray-500"
                               : "text-gray-800 dark:text-gray-100"
@@ -588,21 +581,13 @@ const Dashboard = () => {
 
 
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs  text-gray-500 dark:text-gray-400">
                         Added: {new Date(task.createdAt).toLocaleString("en-IN", {
                           dateStyle: "medium",
                           timeStyle: "short",
                         })}
 
                       </p>
-                      {/* {task.dueDate && (
-                        <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
-                          Due: {new Date(task.dueDate).toLocaleString("en-IN", {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                          })}
-                        </p>
-                      )} */}
 
                       {task.dueDate && (
                         <p
@@ -629,7 +614,8 @@ const Dashboard = () => {
                   {/* Edit Icon */}
                   <button
                     onClick={() => handleEdit(task)}
-                    className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition text-lg"
+                    className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-all duration-200 ease-in-out
+active:scale-95 text-lg"
                   >
                     <FaEdit />
                   </button>
@@ -641,7 +627,8 @@ const Dashboard = () => {
                       setShowDeleteModal(true);
                     }}
                     disabled={deletingId === task._id}
-                    className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition text-lg disabled:opacity-50"
+                    className="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-all duration-200 ease-in-out
+active:scale-95 text-lg disabled:opacity-50"
                   >
                     {deletingId === task._id ? (
                       <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
@@ -656,52 +643,23 @@ const Dashboard = () => {
             );
 
           })},
-          {showDeleteModal && (
-            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl w-[90%] max-w-md">
-
-                <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
-                  Confirm Deletion
-                </h2>
-
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
-                  Are you sure you want to delete this task? This action cannot be undone.
-                </p>
-
-                <div className="flex justify-end gap-3">
-
-                  <button
-                    onClick={() => {
-                      setShowDeleteModal(false);
-                      setTaskToDelete(null);
-                    }}
-                    className="px-4 py-2 rounded-xl bg-gray-200 dark:bg-gray-700 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-                  >
-                    Cancel
-                  </button>
-
-                  <button
-                    onClick={async () => {
-                      await handleDelete(taskToDelete);
-                      setShowDeleteModal(false);
-                      setTaskToDelete(null);
-                    }}
-                    className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white transition"
-                  >
-                    Delete
-                  </button>
-
-                </div>
-              </div>
-
-            </div>
-          )}
         </div>
       )
       }
+      <DeleteModal
+        isOpen={showDeleteModal}
+        loading={deletingId === taskToDelete}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setTaskToDelete(null);
+        }}
+        onConfirm={async () => {
+          await handleDelete(taskToDelete);
+          setShowDeleteModal(false);
+          setTaskToDelete(null);
+        }}
+      />
     </div >
-
   );
 };
 

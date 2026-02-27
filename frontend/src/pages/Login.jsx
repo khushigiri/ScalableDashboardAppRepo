@@ -29,10 +29,8 @@ const Login = () => {
     try {
       const res = await api.post("/auth/login", form);
 
-      // Use context login (this updates ProtectedRoute)
       login(res.data.token);
 
-      // Redirect
       navigate("/dashboard");
     } catch (error) {
       console.error(error);

@@ -8,7 +8,6 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 function App() {
   return (
     <BrowserRouter>
-      {/* Toast Container */}
       <Toaster 
         position="top-right"
         toastOptions={{
@@ -21,7 +20,6 @@ function App() {
       />
 
       <Routes>
-        {/* Default route */}
         <Route path="/" element={<Navigate to="/login" />} />
 
         <Route path="/register" element={<Register />} />
@@ -36,7 +34,6 @@ function App() {
           }
         />
 
-        {/* Catch all unknown routes */}
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>

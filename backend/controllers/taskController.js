@@ -26,7 +26,7 @@ exports.createTask = async (req, res) => {
   }
 };
 
-// 🔹 Get All Tasks
+// Get All Tasks
 exports.getTasks = async (req, res) => {
   try {
     const tasks = await Task.find({ user: req.user.id })
@@ -53,7 +53,6 @@ exports.updateTask = async (req, res) => {
 
     const { title, description, status, priority, dueDate } = req.body;
 
-    // 🔥 Do NOT validate title/priority here
     task.title = title ?? task.title;
     task.description = description ?? task.description;
     task.status = status ?? task.status;
@@ -68,7 +67,7 @@ exports.updateTask = async (req, res) => {
   }
 };
 
-// 🔹 Delete Task
+// Delete Task
 exports.deleteTask = async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
@@ -88,8 +87,3 @@ exports.deleteTask = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-
-
-
-
