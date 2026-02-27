@@ -53,7 +53,7 @@ This project demonstrates:
 
 ---
 
-## 📊 Dashboard Features
+## Dashboard Features
 
 * View logged-in user
 * Create tasks
@@ -65,28 +65,6 @@ This project demonstrates:
 * Logout functionality
 * Light/Dark mode toggle
 * Task Reminder
-
----
-
-## Project Structure
-
-
-backend/
-  ├── config/
-  ├── controllers/
-  ├── middleware/
-  ├── models/
-  ├── routes/
-  ├── server.js
-
-frontend/
-  ├── components/
-  ├── context/
-  ├── pages/
-  ├── routes/
-  ├── services/
-  ├── App.js
-
 
 ---
 
