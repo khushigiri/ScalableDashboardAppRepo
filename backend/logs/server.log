@@ -1,0 +1,15 @@
+[33m[nodemon] 3.1.9[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node server.js`[39m
+[dotenv@17.3.1] injecting env (4) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+Connecting to Mongo...
+MongoDB Connected
+Server running
+[0mPOST /api/auth/register [33m400[0m 283.119 ms - 33[0m
+[0mPOST /api/auth/login [32m200[0m 801.699 ms - 212[0m
+[0mPOST /api/tasks [32m201[0m 335.307 ms - 323[0m
+[0mGET /api/tasks [32m200[0m 441.593 ms - 1280[0m
+[0mPUT /api/tasks/69a1983e1a365330c3543959 [32m200[0m 800.855 ms - 314[0m
+[0mDELETE /api/tasks/69a1983e1a365330c3543959 [32m200[0m 784.622 ms - 39[0m

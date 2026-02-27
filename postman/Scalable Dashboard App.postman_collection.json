@@ -1,0 +1,662 @@
+{
+  "info": {
+    "_postman_id": "11c15126-788a-4b15-b945-24f40e3e1f69",
+    "name": "Scalable Dashboard App",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "37256243"
+  },
+  "item": [
+    {
+      "name": "Auth Routes",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Shiv\",\r\n  \"email\": \"02khushi.ri@gmail.com\",\r\n  \"password\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Register",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"name\": \"Shiv\",\r\n  \"email\": \"02khushi.ri@gmail.com\",\r\n  \"password\": \"123456\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:5000/api/auth/register",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5000",
+                  "path": [
+                    "api",
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "224"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"e0-QDs09B0KVaj6xmg96QyU0F9QRpg\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 27 Feb 2026 12:14:23 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"User registered successfully\",\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YTE4YTlmNmM4NzEyNDUxMzkzZmQ1OSIsImlhdCI6MTc3MjE5NDQ2MywiZXhwIjoxNzcyMjgwODYzfQ.oqwIMaU81dYbVeC6ZJ3dDGKIQkeelbks7Fcm0TKR3LE\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();\r",
+                  "pm.environment.set(\"token\", response.token);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"02khushi.giri@gmail.com\",\r\n  \"password\": \"123456\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Login",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"02khushi.giri@gmail.com\",\r\n  \"password\": \"123456\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:5000/api/auth/login",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5000",
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "212"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"d4-hAWzTLAe/aZSDzl0pHgGL6rIDi0\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 27 Feb 2026 12:30:47 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Login successful\",\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5OWM2OWI1MzUzNTczMjViY2M5YjQ5NCIsImlhdCI6MTc3MjE5NTQ0NywiZXhwIjoxNzcyMjgxODQ3fQ.nk-c5F5GpgCEwShps2OOAhGQT5bhodhcOURZoQ48AQU\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Task Routes",
+      "item": [
+        {
+          "name": "Tasks",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Complete Assignment\",\r\n  \"priority\": \"medium\",\r\n  \"dueDate\": \"2026-02-28T18:00:00.000Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/tasks",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "tasks"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Tasks",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"title\": \"Complete Assignment\",\r\n  \"priority\": \"medium\",\r\n  \"dueDate\": \"2026-02-28T18:00:00.000Z\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:5000/api/tasks",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5000",
+                  "path": [
+                    "api",
+                    "tasks"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "323"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"143-qV1CFDOd1ZnGF157iNdg3vCsRgE\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 27 Feb 2026 12:34:30 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"title\": \"Complete Assignment\",\n    \"status\": \"pending\",\n    \"priority\": \"medium\",\n    \"dueDate\": \"2026-02-28T18:00:00.000Z\",\n    \"reminderTime\": \"2026-02-28T17:30:00.000Z\",\n    \"reminderSent\": false,\n    \"user\": \"699c69b535357325bcc9b494\",\n    \"_id\": \"69a18f566c8712451393fd72\",\n    \"createdAt\": \"2026-02-27T12:34:30.553Z\",\n    \"updatedAt\": \"2026-02-27T12:34:30.553Z\",\n    \"__v\": 0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Tasks",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Complete Assignment\",\r\n  \"priority\": \"medium\",\r\n  \"dueDate\": \"2026-02-28T18:00:00.000Z\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/tasks",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "tasks"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Tasks",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"title\": \"Complete Assignment\",\r\n  \"priority\": \"medium\",\r\n  \"dueDate\": \"2026-02-28T18:00:00.000Z\"\r\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:5000/api/tasks",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "5000",
+                  "path": [
+                    "api",
+                    "tasks"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "632"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"278-XCbd8K6b08MABKA0AGA6dpO4MmE\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 27 Feb 2026 12:36:00 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "[\n    {\n        \"_id\": \"69a18f566c8712451393fd72\",\n        \"title\": \"Complete Assignment\",\n        \"status\": \"pending\",\n        \"priority\": \"medium\",\n        \"dueDate\": \"2026-02-28T18:00:00.000Z\",\n        \"reminderTime\": \"2026-02-28T17:30:00.000Z\",\n        \"reminderSent\": false,\n        \"user\": \"699c69b535357325bcc9b494\",\n        \"createdAt\": \"2026-02-27T12:34:30.553Z\",\n        \"updatedAt\": \"2026-02-27T12:34:30.553Z\",\n        \"__v\": 0\n    },\n    {\n        \"_id\": \"69a174772f66ec1621c906f0\",\n        \"title\": \"guy\",\n        \"status\": \"pending\",\n        \"priority\": \"medium\",\n        \"dueDate\": \"2026-02-27T11:10:00.000Z\",\n        \"reminderTime\": \"2026-02-27T10:40:00.000Z\",\n        \"reminderSent\": true,\n        \"user\": \"699c69b535357325bcc9b494\",\n        \"createdAt\": \"2026-02-27T10:39:52.003Z\",\n        \"updatedAt\": \"2026-02-27T10:40:00.972Z\",\n        \"__v\": 0\n    }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5OWM2OWI1MzUzNTczMjViY2M5YjQ5NCIsImlhdCI6MTc3MjE5NjIwMSwiZXhwIjoxNzcyMjgyNjAxfQ.c9_HzlgEQSuR4zMZ_8aoiO4Y8iYM1IJMR0PK9xRPjMw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Updated Task\",\r\n  \"priority\": \"high\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks/69a18f566c8712451393fd72",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tasks",
+                "69a18f566c8712451393fd72"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Update Task",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"title\": \"Updated Task\",\r\n  \"priority\": \"high\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/tasks/69a18f566c8712451393fd72",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "tasks",
+                    "69a18f566c8712451393fd72"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "314"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"13a-BzybKvENX8vP5p0GrB3+r5tpnec\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 27 Feb 2026 12:44:55 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"_id\": \"69a18f566c8712451393fd72\",\n    \"title\": \"Updated Task\",\n    \"status\": \"pending\",\n    \"priority\": \"high\",\n    \"dueDate\": \"2026-02-28T18:00:00.000Z\",\n    \"reminderTime\": \"2026-02-28T17:30:00.000Z\",\n    \"reminderSent\": false,\n    \"user\": \"699c69b535357325bcc9b494\",\n    \"createdAt\": \"2026-02-27T12:34:30.553Z\",\n    \"updatedAt\": \"2026-02-27T12:44:55.668Z\",\n    \"__v\": 0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5OWM2OWI1MzUzNTczMjViY2M5YjQ5NCIsImlhdCI6MTc3MjE5NjIwMSwiZXhwIjoxNzcyMjgyNjAxfQ.c9_HzlgEQSuR4zMZ_8aoiO4Y8iYM1IJMR0PK9xRPjMw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"Updated Task\",\r\n  \"priority\": \"high\"\r\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks/69a18f566c8712451393fd72",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tasks",
+                "69a18f566c8712451393fd72"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Delete Task",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"title\": \"Updated Task\",\r\n  \"priority\": \"high\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/tasks/69a18f566c8712451393fd72",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "tasks",
+                    "69a18f566c8712451393fd72"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "39"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"27-urf4l4W7aUjEqcMghGgrIBDtf0M\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Fri, 27 Feb 2026 12:46:08 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"message\": \"Task deleted successfully\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

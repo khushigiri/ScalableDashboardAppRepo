@@ -1,3 +1,4 @@
+const morgan = require("morgan");
 require("dotenv").config();
 
 const express = require("express");
@@ -13,6 +14,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(morgan("dev"));
 
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/tasks", require("./routes/taskRoutes"));
